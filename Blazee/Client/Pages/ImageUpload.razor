@@ -1,0 +1,44 @@
+﻿@page "/upload-image"
+
+<PageTitle>Upload Image</PageTitle>
+<h3>Upload Image</h3>
+
+<p>
+    <label>
+        <InputFile id="image-picker" OnChange=@LoadFiles accept="image/*" />
+    </label>
+</p>
+
+
+@if (isLoading)
+{
+    <p>Uploading...</p>
+}
+else
+{
+<img  src="@imageSource" />
+}
+
+
+@code {
+    private string imageSource;
+    private bool isLoading;
+    private int maxAllowedFiles = 1;
+
+    private async Task LoadFiles(InputFileChangeEventArgs e)
+    {
+        isLoading = true;
+
+        foreach (var file in e.GetMultipleFiles(maxAllowedFiles))
+        {
+                var img = await file.RequestImageFileAsync("image/png", 600, 600);     
+                var buffer = new byte[img.Size];
+                await img.OpenReadStream().ReadAsync(buffer);
+                var imgBuffer = Convert.ToBase64String(buffer);
+                imageSource =
+                $"data:image/png;base64,{Convert.ToBase64String(buffer)}";
+        }
+
+        isLoading = false;
+    }
+}
