@@ -1,3 +1,4 @@
+using Blazee.ImageProcessing;
 using Microsoft.AspNetCore.ResponseCompression;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -6,7 +7,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
-
+builder.Services.AddHttpClient();
+builder.Services.AddTransient<IEffectService, EffectService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -27,7 +29,6 @@ app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
 
 app.UseRouting();
-
 
 app.MapRazorPages();
 app.MapControllers();

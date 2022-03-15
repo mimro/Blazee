@@ -1,4 +1,7 @@
 ﻿@page "/upload-image"
+@using Blazee.Client.Services
+@using Blazee.Shared.Models
+@inject HttpClient Http
 
 <PageTitle>Upload Image</PageTitle>
 <h3>Upload Image</h3>
@@ -7,6 +10,7 @@
     <label>
         <InputFile id="image-picker" OnChange=@LoadFiles accept="image/*" />
     </label>
+
 </p>
 
 
@@ -16,29 +20,59 @@
 }
 else
 {
-<img  src="@imageSource" />
+<img  src="@_image?.Source" />
+<img  src="@_imageReponse?.Source" />
+
 }
 
 
 @code {
-    private string imageSource;
+    private ImageModel? _image;
+    private ImageModel? _imageReponse;
+
     private bool isLoading;
     private int maxAllowedFiles = 1;
-
+    int imageHeight =0;
+    int imageWidth=0;
+    //private ImageService imageService = new();
     private async Task LoadFiles(InputFileChangeEventArgs e)
     {
         isLoading = true;
 
         foreach (var file in e.GetMultipleFiles(maxAllowedFiles))
         {
-                var img = await file.RequestImageFileAsync("image/png", 600, 600);     
-                var buffer = new byte[img.Size];
-                await img.OpenReadStream().ReadAsync(buffer);
-                var imgBuffer = Convert.ToBase64String(buffer);
-                imageSource =
-                $"data:image/png;base64,{Convert.ToBase64String(buffer)}";
+            if (file == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            var buffer = new byte[file.Size];
+            await file.OpenReadStream().ReadAsync(buffer);
+            _image = new ImageModel()
+            {
+                ImageBase64String = Convert.ToBase64String(buffer),
+                Type = file.ContentType,
+
+            };
+            //await imageService.PrepareImageFromFile(file);
+
         }
+        _imageReponse = await PostImage();
 
         isLoading = false;
+    }
+
+    private async Task<ImageModel> PostImage()
+    {
+        var jsonContent = System.Text.Json.JsonSerializer.Serialize(_image);
+
+        var response = await Http.PostAsJsonAsync("Image", jsonContent);
+
+        if(response.IsSuccessStatusCode)
+        {
+            var imageResponse = await response.Content.ReadFromJsonAsync<ImageModel>();
+            return imageResponse;
+        }
+        return null;
     }
 }
