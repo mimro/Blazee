@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blazee.Client", "Blazee\Cli
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blazee.Shared", "Blazee\Shared\Blazee.Shared.csproj", "{8716A3BC-5825-4F3D-BC7E-6BB1C429FA3A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blazee.ImageProcessing", "Blazee.ImageProcessing\Blazee.ImageProcessing.csproj", "{7F24BCE8-4105-4404-AE4E-6FBF3C9E75E7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{8716A3BC-5825-4F3D-BC7E-6BB1C429FA3A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8716A3BC-5825-4F3D-BC7E-6BB1C429FA3A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8716A3BC-5825-4F3D-BC7E-6BB1C429FA3A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7F24BCE8-4105-4404-AE4E-6FBF3C9E75E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7F24BCE8-4105-4404-AE4E-6FBF3C9E75E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7F24BCE8-4105-4404-AE4E-6FBF3C9E75E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7F24BCE8-4105-4404-AE4E-6FBF3C9E75E7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
