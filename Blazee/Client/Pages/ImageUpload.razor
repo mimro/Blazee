@@ -1,6 +1,12 @@
 ﻿@page "/upload-image"
 @using Blazee.Client.Services
 @using Blazee.Shared.Models
+@using SixLabors.ImageSharp;
+@using SixLabors.ImageSharp.Formats.Png
+@using SixLabors.ImageSharp.Processing
+@using Radzen
+@using Radzen.Blazor
+
 @inject HttpClient Http
 
 <PageTitle>Upload Image</PageTitle>
@@ -10,8 +16,15 @@
     <label>
         <InputFile id="image-picker" OnChange=@LoadFiles accept="image/*" />
     </label>
-
 </p>
+<div class="row px-3">
+    <div class="col-md-6 col-lg-4 p-3">
+        <RadzenCard>
+            <h4 class="mb-4">Pixel grain: @_value</h4>
+            <RadzenSlider  TValue="int" Min="1" Max="50"  Class="w-100" Disabled=@processing ValueChanged=@(args => OnChange(args, "Slider from 1 to 50")) />
+        </RadzenCard>
+    </div>
+ </div>
 
 
 @if (isLoading)
@@ -20,20 +33,51 @@
 }
 else
 {
-<img  src="@_image?.Source" />
-<img  src="@_imageReponse?.Source" />
+    @*<img src="@_image?.Source" />*@
+      <div class="col-xl-6">
+            <h3 class="mt-3">Image from application assets</h3>
+            <RadzenImage Path="@_image?.Source" Style="width: 60%; margin: 3rem;" a />
+        </div>
+
 
 }
 
 
 @code {
+    int _value = 30;
+    bool processing = false;
     private ImageModel? _image;
-    private ImageModel? _imageReponse;
-
+    private List<ImageModel> _imageReponses = new();
+    private Image img;
     private bool isLoading;
     private int maxAllowedFiles = 1;
-    int imageHeight =0;
-    int imageWidth=0;
+    int _scale = 0;
+
+    private void ValueChange(DragEventArgs args)
+    {
+        processing = true;
+    }
+    private async Task OnChange(dynamic value, string name)
+    {
+        _value = value;
+        await Task.Run(()=>{
+            using (Image tempImage = img.Clone(x=>x.Pixelate(_value)))
+            {
+               _image = new ImageModel()
+                {
+                    Source = tempImage.ToBase64String(PngFormat.Instance)
+                };
+            }
+           //mg.(x => x.Pixelate(val));
+            
+
+        });
+        processing = false;
+
+        //var str = value is IEnumerable ? string.Join(", ", value) : value;
+        //console.Log($"{name} value changed to {str}");
+    }
+
     //private ImageService imageService = new();
     private async Task LoadFiles(InputFileChangeEventArgs e)
     {
@@ -48,31 +92,53 @@ else
 
             var buffer = new byte[file.Size];
             await file.OpenReadStream().ReadAsync(buffer);
-            _image = new ImageModel()
-            {
-                ImageBase64String = Convert.ToBase64String(buffer),
-                Type = file.ContentType,
 
-            };
+            using (Image image = Image.Load(buffer))
+            {
+               img =  image.Clone(x => x.Resize(image.Width / 2, image.Height / 2));
+            }
+
+           // this.img = await Task.Run(()=> Image.Load(buffer));
+
+            _image = new ImageModel()
+                {
+                    Source = await Task.Run(()=>img.ToBase64String(PngFormat.Instance))
+                };
+
+
             //await imageService.PrepareImageFromFile(file);
 
         }
-        _imageReponse = await PostImage();
+        // _imageReponses = await PostImage();
 
         isLoading = false;
     }
 
-    private async Task<ImageModel> PostImage()
+    private async Task<List<ImageModel>> PostImage()
     {
         var jsonContent = System.Text.Json.JsonSerializer.Serialize(_image);
 
         var response = await Http.PostAsJsonAsync("Image", jsonContent);
 
-        if(response.IsSuccessStatusCode)
+        if (response.IsSuccessStatusCode)
         {
-            var imageResponse = await response.Content.ReadFromJsonAsync<ImageModel>();
-            return imageResponse;
+            var imageResponses = await response.Content.ReadFromJsonAsync<List<ImageModel>>();
+            return imageResponses;
         }
         return null;
     }
+
+    private async Task ScaleImages(int number)
+    {
+        _scale = number;
+        img.Mutate(x => x.Resize(number, number));
+            // img.Mutate(x => x.Resize(img.Width / 2, img.Height / 2));
+            _image = new ImageModel()
+                {
+                    Source = img.ToBase64String(PngFormat.Instance)
+                };
+
+        
+    }
+   
 }

@@ -1,5 +1,5 @@
-using Blazee.ImageProcessing;
 using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.Extensions.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,7 +8,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 builder.Services.AddHttpClient();
-builder.Services.AddTransient<IEffectService, EffectService>();
+builder.Logging.AddConsole();
+builder.Logging.AddDebug();
+
+//builder.Services.AddTransient<IEffectService, EffectService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -29,7 +32,6 @@ app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
 
 app.UseRouting();
-
 app.MapRazorPages();
 app.MapControllers();
 app.MapFallbackToFile("index.html");
