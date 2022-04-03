@@ -39,9 +39,5 @@ jobs:
         with:
           context: .
           push: true
-          tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/blazee:latest
-            ${{github.run_number}}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/blazee:latest
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/blazee:buildcache
-          cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/blazee:buildcache,mode=max
